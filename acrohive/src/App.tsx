@@ -1,16 +1,19 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './hooks/useAuth';
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Navbar } from './components/layout/Navbar';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 // Lazy-loaded pages
+const LandingPage = lazy(() => import('./pages/index'));
 const AuthPage = lazy(() => import('./pages/auth/index'));
 const StudentAuthPage = lazy(() => import('./pages/auth/student'));
 const AdminAuthPage = lazy(() => import('./pages/auth/admin'));
 const ScannerPage = lazy(() => import('./pages/scanner'));
 const CommandCenter = lazy(() => import('./pages/dashboards'));
 const StudentDashboardPage = lazy(() => import('./pages/dashboards').then(module => ({ default: module.StudentDashboard })));
+const EventsPage = lazy(() => import('./pages/events'));
+const AISuitePage = lazy(() => import('./pages/ai'));
 
 // Placeholder pages (to be fully built in later prompts)
 const PlaceholderPage: React.FC<{ title: string; subtitle: string }> = ({
@@ -64,10 +67,7 @@ export default function App() {
                       <Route
                         path="/"
                         element={
-                          <PlaceholderPage
-                            title="AcroHive"
-                            subtitle="Smart Campus Event Operating System"
-                          />
+                          <LandingPage />
                         }
                       />
 
@@ -76,10 +76,7 @@ export default function App() {
                         path="/events"
                         element={
                           <ProtectedRoute>
-                            <PlaceholderPage
-                              title="Events Directory"
-                              subtitle="Browse and register for campus events"
-                            />
+                            <EventsPage />
                           </ProtectedRoute>
                         }
                       />
@@ -112,10 +109,7 @@ export default function App() {
                         path="/ai"
                         element={
                           <ProtectedRoute>
-                            <PlaceholderPage
-                              title="AI Suite"
-                              subtitle="AI-powered campus tools"
-                            />
+                            <AISuitePage />
                           </ProtectedRoute>
                         }
                       />

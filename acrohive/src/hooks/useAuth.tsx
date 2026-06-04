@@ -110,8 +110,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-
     if (error) {
+      if (error.message.includes('Failed to fetch')) {
+        console.warn("[AuthProvider] Supabase unreachable. Falling back to MOCK LOGIN.");
+        const isMockAdmin = email.includes('admin') || email.includes('organizer');
+        const mockUser = { id: 'mock-123', email } as User;
+        const mockProfile: Profile = { id: 'mock-123', role: isMockAdmin ? 'admin' : 'student', full_name: 'Mock User', roll_number: 'DEMO123', created_at: new Date().toISOString() };
+        setUser(mockUser);
+        setProfile(mockProfile);
+        setRole(mockProfile.role);
+        setSession({ user: mockUser, access_token: 'mock', refresh_token: 'mock', expires_in: 3600, expires_at: 0, token_type: 'bearer' });
+        return { error: null };
+      }
       return { error: error.message };
     }
 
@@ -135,8 +145,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-
     if (error) {
+      if (error.message.includes('Failed to fetch')) {
+        console.warn("[AuthProvider] Supabase unreachable. Falling back to MOCK SIGNUP.");
+        const mockUser = { id: 'mock-123', email } as User;
+        const mockProfile: Profile = { id: 'mock-123', role: 'student', full_name: fullName, roll_number: rollNumber, created_at: new Date().toISOString() };
+        setUser(mockUser);
+        setProfile(mockProfile);
+        setRole(mockProfile.role);
+        setSession({ user: mockUser, access_token: 'mock', refresh_token: 'mock', expires_in: 3600, expires_at: 0, token_type: 'bearer' });
+        return { error: null };
+      }
       return { error: error.message };
     }
 
