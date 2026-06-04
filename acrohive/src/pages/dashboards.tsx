@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   Shield, Users, Calendar, Activity, CheckCircle,
   X, Download, ShieldAlert, Search, ChevronRight,
@@ -50,6 +51,7 @@ interface Certificate {
   eventTitle: string;
   date: string;
   uniqueCode: string;
+  quote?: string;
 }
 
 interface StudentRegistration {
@@ -672,21 +674,41 @@ function CertificatesTab({ events }: { events: Event[] }) {
     if (!selectedEventId) return;
     setGenerating(true);
     setCerts([]);
-    // Simulate Gemini API latency
-    await new Promise(r => setTimeout(r, 1800));
-    const ev = events.find(e => e.id === selectedEventId)!;
-    const generated: Certificate[] = SEED_ATTENDEES
-      .filter(a => a.checkedIn)
-      .map(a => ({
+    
+    try {
+      const ev = events.find(e => e.id === selectedEventId)!;
+      const attendees = SEED_ATTENDEES.filter(a => a.checkedIn);
+
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      
+      const prompt = `Generate a short (1 sentence), highly professional congratulatory quote for each of the ${attendees.length} students who successfully attended a college tech event called "${ev.title}". Return ONLY a valid JSON array of strings (one quote per student). Example: ["Excellent work on completing the event.", "Your dedication to learning is commendable."]`;
+      
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      let quotes: string[] = [];
+      try {
+        quotes = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
+      } catch (err) {
+        console.error('Failed to parse Gemini response', text);
+      }
+
+      const generated: Certificate[] = attendees.map((a, i) => ({
         id: a.id,
         studentName: a.name,
         rollNumber: a.rollNumber,
         eventTitle: ev.title,
         date: ev.date,
         uniqueCode: generateUniqueCode(ev.title, a.rollNumber),
+        quote: quotes[i] || "Thank you for your attendance and dedication to continuous learning."
       }));
-    setCerts(generated);
-    setGenerating(false);
+      
+      setCerts(generated);
+    } catch (e) {
+      console.error('Error generating certificates:', e);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const downloadAll = () => {
@@ -697,6 +719,7 @@ function CertificatesTab({ events }: { events: Event[] }) {
           <h2>Certificate of Attendance</h2>
           <p style="font-size:24px;margin:20px 0">${cert.studentName}</p>
           <p>has successfully attended <strong>${cert.eventTitle}</strong></p>
+          <p style="color:#00D4FF;font-style:italic;margin:30px 0">"${cert.quote}"</p>
           <p style="color:#aaa">${formatDate(cert.date)}</p>
           <p style="font-size:10px;color:#555;margin-top:30px;font-family:monospace">${cert.uniqueCode}</p>
         </body></html>`;
@@ -770,6 +793,7 @@ function CertificatesTab({ events }: { events: Event[] }) {
                 <p className="text-xl font-bold text-white">{cert.studentName}</p>
                 <p className="text-gray-400 text-sm mt-1">{cert.eventTitle}</p>
                 <p className="text-gray-500 text-xs mt-0.5">{formatDate(cert.date)}</p>
+                {cert.quote && <p className="text-gray-300 text-sm mt-3 italic">"{cert.quote}"</p>}
                 <div className="mt-4 pt-4 border-t border-gray-800">
                   <p className="text-xs font-mono text-gray-600 break-all">{cert.uniqueCode}</p>
                 </div>
