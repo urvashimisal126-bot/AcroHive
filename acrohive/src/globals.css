@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Cyber Blue Design System — CSS Custom Properties ─── */
+:root {
+  --color-primary: #00D4FF;
+  --color-primary-glow: rgba(0, 212, 255, 0.12);
+  --color-primary-dark: #0099CC;
+  --color-primary-text: #00D4FF;
+  --color-primary-bg: #001a2e;
+  --color-success: #00D4FF;
+  --color-accent-border: rgba(0, 212, 255, 0.25);
+
+  --color-bg-primary: #000000;
+  --color-bg-card: #0d0d0d;
+  --color-bg-elevated: #161616;
+  --color-text-primary: #FFFFFF;
+  --color-text-muted: #888888;
+  --color-danger: #FF1744;
+  --color-warning: #FF9800;
+}
+
+/* ─── Base Reset ─── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(0, 212, 255, 0.3);
+  color: #fff;
+}
+
+/* ─── Scrollbar (WebKit) ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.45);
+}
+
+/* ─── Component Utilities ─── */
+@layer components {
+  /* Cyber blue card */
+  .cyber-card {
+    @apply bg-surface-card border border-primary-border rounded-xl p-6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cyber-card:hover {
+    border-color: rgba(0, 212, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+  }
+
+  /* Cyber button */
+  .cyber-btn {
+    @apply bg-primary text-black font-semibold px-6 py-3 rounded-lg;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-[0_0_20px_rgba(0,212,255,0.3)];
+    @apply active:scale-[0.97];
+  }
+  .cyber-btn:disabled {
+    @apply opacity-40 cursor-not-allowed;
+    box-shadow: none;
+  }
+
+  /* Cyber outline button */
+  .cyber-btn-outline {
+    @apply bg-transparent border border-primary text-primary font-semibold px-6 py-3 rounded-lg;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-primary/10 hover:shadow-[0_0_20px_rgba(0,212,255,0.15)];
+    @apply active:scale-[0.97];
+  }
+
+  /* Badge variants */
+  .badge-success {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
+    @apply bg-primary/10 text-primary border border-primary/30;
+  }
+  .badge-danger {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
+    @apply bg-danger/10 text-danger border border-danger/30;
+  }
+  .badge-warning {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
+    @apply bg-warning/10 text-warning border border-warning/30;
+  }
+  .badge-info {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
+    @apply bg-white/5 text-muted border border-white/10;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply bg-surface-card border border-white/5 rounded-xl p-5;
+    @apply transition-all duration-300 ease-out;
+  }
+  .stat-card:hover {
+    border-color: rgba(0, 212, 255, 0.2);
+  }
+
+  /* Geofence gate states */
+  .gate-card {
+    @apply rounded-xl border p-6 md:p-8;
+    @apply transition-all duration-300 ease-out;
+  }
+  .gate-idle {
+    @apply bg-surface-card border-primary-border;
+  }
+  .gate-checking {
+    @apply bg-cyber-bg border-primary/40;
+  }
+  .gate-verified {
+    @apply bg-[#001a10] border-emerald-500/40;
+  }
+  .gate-failed {
+    @apply bg-[#1a0a0a] border-danger/40;
+  }
+  .gate-demo {
+    @apply bg-[#1a1400] border-warning/40;
+  }
+
+  /* Pulsing ring for checking state */
+  .pulse-ring {
+    @apply relative;
+  }
+  .pulse-ring::before,
+  .pulse-ring::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+    animation: pulse-ring 1.5s ease-in-out infinite;
+  }
+  .pulse-ring::after {
+    animation-delay: 0.5s;
+  }
+}
+
+/* ─── Keyframes (non-Tailwind) ─── */
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  50% { transform: scale(1.2); opacity: 0.2; }
+  100% { transform: scale(0.85); opacity: 0.9; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── QR Camera viewport ─── */
+#qr-reader {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+}
+#qr-reader video {
+  border-radius: 12px;
+}
