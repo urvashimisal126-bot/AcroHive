@@ -9,6 +9,8 @@ const AuthPage = lazy(() => import('./pages/auth/index'));
 const StudentAuthPage = lazy(() => import('./pages/auth/student'));
 const AdminAuthPage = lazy(() => import('./pages/auth/admin'));
 const ScannerPage = lazy(() => import('./pages/scanner'));
+const CommandCenter = lazy(() => import('./pages/dashboards'));
+const StudentDashboardPage = lazy(() => import('./pages/dashboards').then(module => ({ default: module.StudentDashboard })));
 
 // Placeholder pages (to be fully built in later prompts)
 const PlaceholderPage: React.FC<{ title: string; subtitle: string }> = ({
@@ -32,6 +34,11 @@ function LoadingFallback() {
       </div>
     </div>
   );
+}
+
+function StudentDashboardWrapper() {
+  const { user } = useAuth();
+  return <StudentDashboardPage userId={user?.id || ''} />;
 }
 
 export default function App() {
@@ -85,10 +92,7 @@ export default function App() {
                             requiredRole="student"
                             redirectTo="/auth/student"
                           >
-                            <PlaceholderPage
-                              title="My Tickets"
-                              subtitle="Your registered event QR tickets"
-                            />
+                            <StudentDashboardWrapper />
                           </ProtectedRoute>
                         }
                       />
@@ -124,10 +128,7 @@ export default function App() {
                             requiredRole="admin"
                             redirectTo="/auth/admin"
                           >
-                            <PlaceholderPage
-                              title="Command Center"
-                              subtitle="Admin operations dashboard"
-                            />
+                            <CommandCenter />
                           </ProtectedRoute>
                         }
                       />
